@@ -1,43 +1,28 @@
-import { string } from 'yup';
-import onChange from 'on-change';
-import render from './render.js';
+import i18next from 'i18next';
+import { setLocale } from 'yup';
+
+import init from './init.js';
+import resources from './locales/index.js';
 
 export default () => {
-  const elements = {
-    urlInput: document.getElementById('url-input'),
-    form: document.querySelector('.rss-form'),
-    exampleUrl: document.querySelector('.example-url'),
-    feedback: document.querySelector('.feedback'),
-  };
+  const lng = 'ru';
 
-  const state = onChange({
-    form: {
-      fields: { url: '' },
-      error: {},
+  setLocale({
+    mixed: {
+      default: 'errors.default',
+      notOneOf: 'errors.notOneOf',
     },
-    urls: [],
-  }, render(elements));
-
-  elements.form.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const data = new FormData(e.target);
-    state.form.fields.url = data.get('url').trim();
-    const schema = string().url().notOneOf(state.urls);
-    schema.validate(state.form.fields.url)
-      .then(() => {
-        state.urls.push(state.form.fields.url);
-        state.form.fields.url = '';
-      })
-      .catch((error) => {
-        state.form.error = error;
-      })
-      .finally(() => {
-        elements.urlInput.focus();
-      });
+    string: {
+      url: 'errors.url',
+    },
   });
 
-  elements.exampleUrl.addEventListener('click', (e) => {
-    e.preventDefault();
-    state.form.fields.url = e.target.innerHTML;
+  const i18nInstance = i18next.createInstance();
+  i18nInstance.init({
+    lng,
+    debug: true,
+    resources,
+  }).then(() => {
+    init(i18nInstance);
   });
 };
