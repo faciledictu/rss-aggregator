@@ -7,6 +7,12 @@ import resources from './locales/index.js';
 import render from './render.js';
 import parseRSS from './utils/parser.js';
 
+let counter = 0;
+const getId = () => {
+  counter += 1;
+  return counter;
+};
+
 const domParser = new DOMParser();
 
 const getAllOriginsResponse = (url) => {
@@ -21,21 +27,54 @@ const getAllOriginsResponse = (url) => {
 
 const extractAllOriginsContents = (response) => {
   if (response.data.status.error) {
-    return Promise.reject(new Error('RequestError'));
+    return Promise.reject(new Error('requestError'));
   }
 
   const responseCode = response.data.status.http_code;
   if (responseCode >= 300 || responseCode < 200) {
-    return Promise.reject(new Error('RequestError'));
+    return Promise.reject(new Error('requestError'));
   }
 
   const responseData = response.data.contents;
-  return Promise.resolve(responseData);
+  const xmlDocument = domParser.parseFromString(responseData, 'text/xml');
+  return Promise.resolve(xmlDocument);
 };
 
 const getHttpContents = (url) => getAllOriginsResponse(url)
   .catch(() => Promise.reject(new Error('networkError')))
   .then(extractAllOriginsContents);
+
+const addPosts = (feedId, items, state) => {
+  const posts = items.map((item) => ({
+    feedId,
+    id: getId(),
+    ...item,
+  }));
+  state.posts = posts.concat(state.posts);
+};
+
+const setAutoUpdade = (feedId, state, timeout = 5000) => {
+  const feed = state.feeds.find(({ id }) => feedId === id);
+  const inner = () => {
+    getHttpContents(feed.link)
+      .then(parseRSS)
+      .then((parsedRSS) => {
+        const postsUrls = state.posts
+          .filter((post) => feedId === post.feedId)
+          .map(({ link }) => link);
+        const newItems = parsedRSS.items.filter(({ link }) => !postsUrls.includes(link));
+        if (newItems.length > 0) {
+          addPosts(feedId, newItems, state);
+        }
+      })
+      .catch(console.log)
+      .finally(() => {
+        setTimeout(inner, timeout);
+      });
+  };
+
+  setTimeout(inner, timeout);
+};
 
 export default () => {
   const lng = 'ru';
@@ -85,8 +124,8 @@ export default () => {
         e.preventDefault();
         state.form.error = '';
 
-        const getUrlsList = state.feeds.map(({ link }) => link);
-        const schema = string().url().notOneOf(getUrlsList);
+        const getFeedUrls = state.feeds.map(({ link }) => link);
+        const schema = string().url().notOneOf(getFeedUrls);
 
         schema
           .validate(state.form.fields.url)
@@ -94,12 +133,9 @@ export default () => {
             state.form.state = 'sending';
             return getHttpContents(state.form.fields.url);
           })
-          .then((contents) => {
-            const xmlDocument = domParser.parseFromString(contents, 'text/xml');
-            return parseRSS(xmlDocument);
-          })
+          .then(parseRSS)
           .then((parsedRSS) => {
-            const feedId = state.feeds.length;
+            const feedId = getId();
 
             const feed = {
               id: feedId,
@@ -108,19 +144,12 @@ export default () => {
               link: state.form.fields.url,
             };
             state.feeds.push(feed);
-
-            const startPostId = state.posts.length;
-            const posts = parsedRSS.items.map((item, i) => ({
-              feedId,
-              id: startPostId + i,
-              ...item,
-            }));
-            state.posts = state.posts.concat(posts);
+            addPosts(feedId, parsedRSS.items, state);
+            setAutoUpdade(feedId, state);
 
             state.form.fields.url = '';
           })
           .catch((error) => {
-            console.log(error);
             const message = error.message ?? 'default';
             state.form.error = message;
           })
@@ -135,7 +164,7 @@ export default () => {
 
       elements.exampleUrl.addEventListener('click', (e) => {
         e.preventDefault();
-        state.form.fields.url = e.target.innerHTML;
+        state.form.fields.url = e.target.textContent.trim();
       });
     });
 };

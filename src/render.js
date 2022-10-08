@@ -1,7 +1,8 @@
 const spinner = document.createElement('span');
-spinner.classList.add('spinner-border');
+spinner.classList.add('spinner-grow');
 spinner.setAttribute('role', 'status');
 spinner.setAttribute('aria-hidden', 'true');
+spinner.setAttribute('style', 'margin-right: 0.3rem');
 
 const createElement = (tagName, options = {}) => {
   const element = document.createElement(tagName);
@@ -63,8 +64,8 @@ const handleFormState = (elements, formState, i18nInstance) => {
 
     case 'sending':
       elements.submitButton.disabled = true;
-      elements.submitButton.append(spinner);
-      elements.submitButton.textContent = i18nInstance.t('form.loading');
+      elements.submitButton.textContent = '';
+      elements.submitButton.append(spinner, document.createTextNode(i18nInstance.t('form.loading')));
       break;
 
     default:
@@ -120,7 +121,7 @@ const handleFeeds = (container, feeds, i18nInstance) => {
 };
 
 const handlePosts = (container, posts, i18nInstance) => {
-  const listElems = posts.map(({ id, title, link }) => {
+  const listElems = posts.map(({ id, title, url }) => {
     const listElem = createElement(
       'li',
       {
@@ -142,7 +143,7 @@ const handlePosts = (container, posts, i18nInstance) => {
         textContent: title,
       },
     );
-    linkElem.href = link;
+    linkElem.href = url;
     linkElem.target = '_blank';
     linkElem.rel = 'noopener noreferrer';
     linkElem.setAttribute('data-id', id);

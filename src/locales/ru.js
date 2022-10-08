@@ -9,12 +9,12 @@ export default {
     preview: 'Просмотр',
     rssAdded: 'RSS успешно добавлен',
     errors: {
-      default: 'Неизвестная ошибка. Что-то пошло не так',
       invalidUrl: 'Ссылка должна быть валидным URL',
-      alreadyExists: 'Этот RSS уже был добавлен',
-      RequestError: 'Не удается открыть ссылку',
       noRSS: 'Ресурс не содержит RSS',
+      alreadyExists: 'Этот RSS уже был добавлен',
+      requestError: 'Не удается открыть ссылку',
       networkError: 'Ошибка сети. Попробуйте еще раз',
+      default: 'Неизвестная ошибка. Что-то пошло не так',
     },
   },
 };
