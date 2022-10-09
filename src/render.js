@@ -44,7 +44,7 @@ const makeContainer = (title, listElems) => {
 
   const list = createElement(
     'ul',
-    { style: ['list-group', 'border-0', 'rounded-0'] },
+    { style: ['list-group', 'list-group-flush'] },
   );
 
   list.append(...listElems);
@@ -120,56 +120,60 @@ const handleFeeds = (container, feeds, i18nInstance) => {
   container.replaceChildren(feedsContainer);
 };
 
-const handlePosts = (container, posts, i18nInstance) => {
-  const listElems = posts.map(({ id, title, url }) => {
-    const listElem = createElement(
-      'li',
-      {
-        style: [
-          'list-group-item',
-          'd-flex',
-          'justify-content-between',
-          'align-items-start',
-          'border-0',
-          'border-end-g',
-        ],
-      },
-    );
+const handlePosts = (container, posts, readPosts, i18nInstance) => {
+  const listElems = posts
+    .map(({
+      id,
+      title,
+      link,
+    }) => {
+      const listElem = createElement(
+        'li',
+        {
+          style: [
+            'list-group-item',
+            'd-flex',
+            'justify-content-between',
+            'align-items-baseline',
+            'border-end-g',
+          ],
+        },
+      );
 
-    const linkElem = createElement(
-      'a',
-      {
-        style: 'fw-bold',
-        textContent: title,
-      },
-    );
-    linkElem.href = url;
-    linkElem.target = '_blank';
-    linkElem.rel = 'noopener noreferrer';
-    linkElem.setAttribute('data-id', id);
+      const linkElem = createElement(
+        'a',
+        {
+          style: readPosts.includes(id) ? 'fw-normal' : 'fw-bold',
+          textContent: title,
+        },
+      );
+      linkElem.href = link;
+      linkElem.target = '_blank';
+      linkElem.rel = 'noopener noreferrer';
+      linkElem.setAttribute('data-id', id);
 
-    const button = createElement(
-      'button',
-      {
-        style: ['btn', 'btn-outline-primary', 'btn-sm'],
-        textContent: i18nInstance.t('preview'),
-      },
-    );
-    button.type = 'button';
-    button.setAttribute('data-bs-toggle', 'modal');
-    button.setAttribute('data-bs-target', '#modal');
-    button.setAttribute('data-id', id);
+      const button = createElement(
+        'button',
+        {
+          style: ['btn', 'btn-outline-primary', 'btn-sm'],
+          textContent: i18nInstance.t('preview'),
+        },
+      );
+      button.type = 'button';
+      button.setAttribute('data-bs-toggle', 'modal');
+      button.setAttribute('data-bs-target', '#modal');
+      button.setAttribute('data-id', id);
 
-    listElem.append(linkElem, button);
-    return listElem;
-  });
+      listElem.append(linkElem, button);
+      return listElem;
+    });
 
   const title = i18nInstance.t('posts');
   const postsContainer = makeContainer(title, listElems);
   container.replaceChildren(postsContainer);
 };
 
-export default (elements, i18nInstance) => (path, value) => {
+export default (elements, state, i18nInstance) => (path, value) => {
   console.log('__render', path, value);
 
   switch (path) {
@@ -185,6 +189,12 @@ export default (elements, i18nInstance) => (path, value) => {
       handleErrors(elements, value, i18nInstance);
       break;
 
+    case 'modal':
+      elements.modal.title.textContent = value.title;
+      elements.modal.body.textContent = value.description;
+      elements.modal.fullArticleButton.href = value.link;
+      break;
+
     case 'feeds':
       elements.feedback.classList.remove('text-danger');
       elements.feedback.classList.add('text-success');
@@ -193,7 +203,11 @@ export default (elements, i18nInstance) => (path, value) => {
       break;
 
     case 'posts':
-      handlePosts(elements.posts, value, i18nInstance);
+      handlePosts(elements.posts, value, state.readPosts, i18nInstance);
+      break;
+
+    case 'readPosts':
+      handlePosts(elements.posts, state.posts, state.readPosts, i18nInstance);
       break;
 
     default:

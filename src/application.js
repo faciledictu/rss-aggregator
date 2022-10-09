@@ -98,26 +98,39 @@ export default () => {
     })
     .then(() => {
       const elements = {
-        urlInput: document.getElementById('url-input'),
         form: document.querySelector('.rss-form'),
-        exampleUrl: document.querySelector('.example-url'),
-        feedback: document.querySelector('.feedback'),
+        urlInput: document.getElementById('url-input'),
         submitButton: document.querySelector('button[type="submit"]'),
+        feedback: document.querySelector('.feedback'),
+        exampleUrl: document.querySelector('.example-url'),
         feeds: document.querySelector('.feeds'),
         posts: document.querySelector('.posts'),
+        modal: {
+          title: document.querySelector('.modal-title'),
+          body: document.querySelector('.modal-body'),
+          fullArticleButton: document.querySelector('.full-article'),
+        },
+      };
+
+      const initialState = {
+        form: {
+          state: 'filling',
+          fields: { url: '' },
+          error: '',
+        },
+        modal: {
+          title: '',
+          description: '',
+          link: '',
+        },
+        feeds: [],
+        posts: [],
+        readPosts: [],
       };
 
       const state = onChange(
-        {
-          form: {
-            state: 'filling',
-            fields: { url: '' },
-            error: '',
-          },
-          feeds: [],
-          posts: [],
-        },
-        render(elements, i18nInstance),
+        initialState,
+        render(elements, initialState, i18nInstance),
       );
 
       elements.form.addEventListener('submit', (e) => {
@@ -165,6 +178,22 @@ export default () => {
       elements.exampleUrl.addEventListener('click', (e) => {
         e.preventDefault();
         state.form.fields.url = e.target.textContent.trim();
+      });
+
+      elements.posts.addEventListener('click', (e) => {
+        if (e.target.dataset.bsTarget === '#modal') {
+          const postId = parseInt(e.target.dataset.id, 10);
+          const post = state.posts
+            .find(({ id }) => postId === id);
+          const {
+            title,
+            description,
+            link,
+            id,
+          } = post;
+          state.readPosts.push(id);
+          state.modal = { title, description, link };
+        }
       });
     });
 };
