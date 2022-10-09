@@ -26,10 +26,6 @@ const getAllOriginsResponse = (url) => {
 };
 
 const extractAllOriginsContents = (response) => {
-  if (response.data.status.error) {
-    return Promise.reject(new Error('networkError'));
-  }
-
   const responseData = response.data.contents;
   const xmlDocument = domParser.parseFromString(responseData, 'text/xml');
   return Promise.resolve(xmlDocument);
