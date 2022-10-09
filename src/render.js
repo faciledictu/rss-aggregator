@@ -174,8 +174,6 @@ const handlePosts = (container, posts, readPosts, i18nInstance) => {
 };
 
 export default (elements, state, i18nInstance) => (path, value) => {
-  console.log('__render', path, value);
-
   switch (path) {
     case 'form.state':
       handleFormState(elements, value, i18nInstance);

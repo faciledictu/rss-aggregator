@@ -27,12 +27,7 @@ const getAllOriginsResponse = (url) => {
 
 const extractAllOriginsContents = (response) => {
   if (response.data.status.error) {
-    return Promise.reject(new Error('requestError'));
-  }
-
-  const responseCode = response.data.status.http_code;
-  if (responseCode >= 300 || responseCode < 200) {
-    return Promise.reject(new Error('requestError'));
+    return Promise.reject(new Error('networkError'));
   }
 
   const responseData = response.data.contents;
@@ -82,6 +77,7 @@ export default () => {
   setLocale({
     mixed: {
       default: 'default',
+      required: 'empty',
       notOneOf: 'alreadyExists',
     },
     string: {
@@ -138,7 +134,10 @@ export default () => {
         state.form.error = '';
 
         const getFeedUrls = state.feeds.map(({ link }) => link);
-        const schema = string().url().notOneOf(getFeedUrls);
+        const schema = string()
+          .required()
+          .url()
+          .notOneOf(getFeedUrls);
 
         schema
           .validate(state.form.fields.url)
