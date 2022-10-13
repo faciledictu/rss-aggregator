@@ -3,9 +3,9 @@
 
 # RSS Aggregator
 
-[![RSS Aggregator](images/RSS-aggregator.png)](frontend-project-11-sandy.vercel.app)
+[![RSS Aggregator](images/RSS-aggregator.png)](https://frontend-project-11-sandy.vercel.app)
 
-View demo: [frontend-project-11-sandy.vercel.app](frontend-project-11-sandy.vercel.app)
+View demo: [frontend-project-11-sandy.vercel.app](https://frontend-project-11-sandy.vercel.app)
 
 ## About the project
 
