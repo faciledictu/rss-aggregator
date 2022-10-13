@@ -2,6 +2,14 @@
   text-decoration-style: dashed;
 }
 
+#url-input {
+  min-width: 12rem;
+}
+
+.btn-lg {
+  width: 12rem;
+}
+
 $spinner-width: 1.5rem;
 
 @import "~bootstrap/scss/bootstrap";
