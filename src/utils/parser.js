@@ -1,4 +1,7 @@
-export default (xmlDocument) => {
+const domParser = new DOMParser();
+
+export default (responseData) => {
+  const xmlDocument = domParser.parseFromString(responseData, 'text/xml');
   const rootTagName = xmlDocument.documentElement.tagName.toLowerCase();
   if (rootTagName !== 'rss') {
     return Promise.reject(new Error('noRSS'));

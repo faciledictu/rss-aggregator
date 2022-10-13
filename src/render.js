@@ -120,7 +120,7 @@ const handleFeeds = (container, feeds, i18nInstance) => {
   container.replaceChildren(feedsContainer);
 };
 
-const handlePosts = (container, posts, readPosts, i18nInstance) => {
+const handlePosts = (container, posts, readPostIds, i18nInstance) => {
   const listElems = posts
     .map(({
       id,
@@ -143,7 +143,7 @@ const handlePosts = (container, posts, readPosts, i18nInstance) => {
       const linkElem = createElement(
         'a',
         {
-          style: readPosts.includes(id) ? 'fw-normal' : 'fw-bold',
+          style: readPostIds.has(id) ? 'fw-normal' : 'fw-bold',
           textContent: title,
         },
       );
@@ -201,14 +201,14 @@ export default (elements, state, i18nInstance) => (path, value) => {
       break;
 
     case 'posts':
-      handlePosts(elements.posts, value, state.readPosts, i18nInstance);
+      handlePosts(elements.posts, value, state.readPostIds, i18nInstance);
       break;
 
-    case 'readPosts':
-      handlePosts(elements.posts, state.posts, state.readPosts, i18nInstance);
+    case 'readPostIds':
+      handlePosts(elements.posts, state.posts, state.readPostIds, i18nInstance);
       break;
 
     default:
-      throw new Error(`Unexpected application state: ${path}: ${value}`);
+      throw new Error(`Unexpected application state: ${path}`);
   }
 };

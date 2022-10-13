@@ -13,8 +13,6 @@ const getId = () => {
   return counter;
 };
 
-const domParser = new DOMParser();
-
 const getAllOriginsResponse = (url) => {
   const allOriginsLink = 'https://allorigins.hexlet.app/get';
 
@@ -25,15 +23,12 @@ const getAllOriginsResponse = (url) => {
   return axios.get(workingUrl);
 };
 
-const extractAllOriginsContents = (response) => {
-  const responseData = response.data.contents;
-  const xmlDocument = domParser.parseFromString(responseData, 'text/xml');
-  return Promise.resolve(xmlDocument);
-};
-
 const getHttpContents = (url) => getAllOriginsResponse(url)
   .catch(() => Promise.reject(new Error('networkError')))
-  .then(extractAllOriginsContents);
+  .then((response) => {
+    const responseData = response.data.contents;
+    return Promise.resolve(responseData);
+  });
 
 const addPosts = (feedId, items, state) => {
   const posts = items.map((item) => ({
@@ -85,7 +80,7 @@ export default () => {
   i18nInstance
     .init({
       lng,
-      debug: true,
+      debug: false,
       resources,
     })
     .then(() => {
@@ -117,7 +112,7 @@ export default () => {
         },
         feeds: [],
         posts: [],
-        readPosts: [],
+        readPostIds: new Set(),
       };
 
       const state = onChange(
@@ -186,7 +181,7 @@ export default () => {
             link,
             id,
           } = post;
-          state.readPosts.push(id);
+          state.readPostIds.add(id);
           state.modal = { title, description, link };
         }
       });
