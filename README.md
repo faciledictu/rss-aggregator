@@ -11,6 +11,8 @@ View demo: [frontend-project-11-sandy.vercel.app](https://frontend-project-11-sa
 
 RSS feeds are an easy way to keep track of new content from various sources like news websites, blogs or forums.
 
+This is my studying project at Hexlet School.
+
 **RSS Aggregator** is a simple, easy-to-use, minimalist web application that puts all your RSS feeds in one place.
 
 ## Features
